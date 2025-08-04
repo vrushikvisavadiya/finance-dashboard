@@ -1,39 +1,21 @@
 import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import {
+  registerUser,
+  loginUser,
+  sendOTP,
+  verifyOTP,
+  resendOTP,
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
-// Register route
-router.post("/register", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const user = new User({ username, email, password });
-    await user.save();
+// Traditional authentication
+router.post("/register", registerUser);
+router.post("/login", loginUser);
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-    res.status(201).json({ token, user: { id: user._id, username, email } });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Login route
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-    res.json({ token, user: { id: user._id, username: user.username, email } });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+// OTP-based authentication
+router.post("/send-otp", sendOTP);
+router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
 
 export default router;

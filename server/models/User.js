@@ -5,6 +5,8 @@ const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  otp: { type: String }, // to store the latest OTP
+  otpExpires: { type: Date }, // expiry time for OTP
   createdAt: { type: Date, default: Date.now },
 });
 
