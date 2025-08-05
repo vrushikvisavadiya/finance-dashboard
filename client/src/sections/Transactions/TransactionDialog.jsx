@@ -39,12 +39,12 @@ import {
 } from "lucide-react";
 
 import {
-  useCategories,
   useCreateTransaction,
   useUpdateTransaction,
 } from "@/hooks/useTransactions";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useCategories } from "@/hooks/useCategories";
 
 const schema = z.object({
   amount: z.coerce.number().positive("Amount must be positive"),
