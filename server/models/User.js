@@ -1,16 +1,18 @@
+// models/User.js
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  otp: { type: String }, // to store the latest OTP
-  otpExpires: { type: Date }, // expiry time for OTP
-  createdAt: { type: Date, default: Date.now },
-});
+const UserSchema = new mongoose.Schema(
+  {
+    fullName: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true }
+);
 
-// Hash password before saving
+// Hash only when the password field is modified
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 12);

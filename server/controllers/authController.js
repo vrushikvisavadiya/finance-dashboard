@@ -3,11 +3,13 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import OTP from "../models/OTP.js";
 import { sendOTPEmail } from "../config/email.js";
+import { generateOTP } from "../utils/helper.js";
 
-// Generate 6-digit OTP
-const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
+/* Helper: uniform success response */
+const ok = (res, message, data) => res.json({ success: true, message, data });
+
+const fail = (res, status, message) =>
+  res.status(status).json({ success: false, message });
 
 // Register a new user
 export const registerUser = async (req, res) => {
@@ -17,7 +19,7 @@ export const registerUser = async (req, res) => {
     // 1. Prevent duplicates
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.status(409).json({ error: "User already exists" });
+      return fail(res, 409, "User already exists");
     }
 
     // 2. Create user (but DON'T issue JWT yet)
@@ -30,13 +32,18 @@ export const registerUser = async (req, res) => {
     await sendOTPEmail(email, otp);
 
     // 4. Respond
-    res.status(201).json({
-      message:
-        "Registration successful. OTP sent to your e-mail for verification.",
-      email,
-    });
+    return ok(
+      res,
+      "Registration successful. OTP sent to your email for verification.",
+      { email }
+    );
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Register user error:", error);
+    return fail(
+      res,
+      400,
+      error.message || "Registration failed. Please try again."
+    );
   }
 };
 
@@ -44,20 +51,30 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return fail(res, 400, "Email and password are required");
+    }
+
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return fail(res, 401, "Invalid credentials");
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
-    res.json({
+
+    return ok(res, "Login successful", {
       token,
-      user: { id: user._id, username: user.username, email },
-      message: "Login successful",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Login user error:", error);
+    return fail(res, 500, "Login failed. Please try again.");
   }
 };
 
@@ -67,12 +84,12 @@ export const sendOTP = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+      return fail(res, 400, "Email is required");
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return fail(res, 404, "User not found");
     }
 
     // Delete any existing OTP for this user
@@ -91,13 +108,10 @@ export const sendOTP = async (req, res) => {
     // Send OTP email
     await sendOTPEmail(email, otp);
 
-    res.json({
-      message: "OTP sent to your email successfully",
-      email: email,
-    });
+    return ok(res, "OTP sent to your email successfully", { email });
   } catch (error) {
     console.error("Send OTP error:", error);
-    res.status(500).json({ error: "Failed to send OTP. Please try again." });
+    return fail(res, 500, "Failed to send OTP. Please try again.");
   }
 };
 
@@ -107,13 +121,13 @@ export const verifyOTP = async (req, res) => {
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return res.status(400).json({ error: "Email and OTP are required" });
+      return fail(res, 400, "Email and OTP are required");
     }
 
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return fail(res, 404, "User not found");
     }
 
     // Find and verify OTP
@@ -123,7 +137,7 @@ export const verifyOTP = async (req, res) => {
     });
 
     if (!otpDocument) {
-      return res.status(401).json({ error: "Invalid or expired OTP" });
+      return fail(res, 401, "Invalid or expired OTP");
     }
 
     // OTP is valid, delete it from database
@@ -132,14 +146,17 @@ export const verifyOTP = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
-    res.json({
+    return ok(res, "OTP verified successfully. Login successful!", {
       token,
-      user: { id: user._id, username: user.username, email },
-      message: "OTP verified successfully. Login successful!",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
     });
   } catch (error) {
     console.error("Verify OTP error:", error);
-    res.status(500).json({ error: "Failed to verify OTP. Please try again." });
+    return fail(res, 500, "Failed to verify OTP. Please try again.");
   }
 };
 
@@ -149,14 +166,14 @@ export const resendOTP = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+      return fail(res, 400, "Email is required");
     }
 
     // Check if user exists
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return fail(res, 404, "User not found");
     }
 
     // Check rate limiting (optional: prevent spam)
@@ -166,9 +183,7 @@ export const resendOTP = async (req, res) => {
     });
 
     if (recentOTP) {
-      return res.status(429).json({
-        error: "Please wait 1 minute before requesting a new OTP",
-      });
+      return fail(res, 429, "Please wait 1 minute before requesting a new OTP");
     }
 
     // Delete existing OTPs and send new one
@@ -184,9 +199,48 @@ export const resendOTP = async (req, res) => {
 
     await sendOTPEmail(email, otp);
 
-    res.json({ message: "New OTP sent to your email successfully" });
+    return ok(res, "New OTP sent to your email successfully", { email });
   } catch (error) {
     console.error("Resend OTP error:", error);
-    res.status(500).json({ error: "Failed to resend OTP. Please try again." });
+    return fail(res, 500, "Failed to resend OTP. Please try again.");
   }
+};
+
+// ? POST Forgot Password
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return fail(res, 400, "Email is required");
+
+  const user = await User.findOne({ email });
+  if (!user) return fail(res, 404, "User not found");
+
+  // remove old tokens & create new OTP
+  await OTP.deleteMany({ userId: user._id });
+  const otp = generateOTP();
+  await OTP.create({ userId: user._id, otp });
+
+  // sendOTPEmail is already implemented in your project
+  await sendOTPEmail(email, otp);
+
+  return ok(res, "OTP sent to your email", { email });
+};
+
+// ? POST /auth/reset-password
+export const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword)
+    return fail(res, 400, "Email, OTP and new password are required");
+
+  const user = await User.findOne({ email });
+  if (!user) return fail(res, 404, "User not found");
+
+  const otpDoc = await OTP.findOne({ userId: user._id, otp });
+  if (!otpDoc) return fail(res, 401, "Invalid or expired OTP");
+
+  // OTP valid – delete & update password
+  await OTP.deleteOne({ _id: otpDoc._id });
+  user.password = newPassword;
+  await user.save();
+
+  return ok(res, "Password reset successfully");
 };
