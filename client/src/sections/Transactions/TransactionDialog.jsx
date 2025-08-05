@@ -246,7 +246,7 @@ export default function TransactionDialog({
               control={control}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Choose category…" />
                   </SelectTrigger>
                   <SelectContent>
