@@ -11,12 +11,6 @@ export const useTransactions = () =>
       api.get("/transactions?limit=100").then((r) => pick(r, "transactions")),
   });
 
-export const useCategories = () =>
-  useQuery({
-    queryKey: ["categories"],
-    queryFn: () => api.get("/categories").then((r) => pick(r, "categories")),
-  });
-
 export const useCreateTransaction = () => {
   const qc = useQueryClient();
   return useMutation({

@@ -14,11 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  useCategories,
   useCreateTransaction,
   useUpdateTransaction,
 } from "@/hooks/useTransactions";
 import { formatISO } from "date-fns";
+import { useCategories } from "@/hooks/useCategories";
 
 const schema = z.object({
   amount: z.number().positive(),
