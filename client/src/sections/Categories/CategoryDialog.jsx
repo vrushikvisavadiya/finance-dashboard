@@ -50,6 +50,10 @@ export default function CategoryDialog({
   });
 
   const onSubmit = async (values) => {
+    console.log(
+      "await updateCategory.mutateAsync({ id: initial._id, ...body });",
+      values
+    );
     if (initial) {
       await updateCategory.mutateAsync({ id: initial._id, ...values });
     } else {

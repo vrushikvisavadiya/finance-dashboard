@@ -23,11 +23,6 @@ const links = [
     icon: <FolderIcon className="h-4 w-4" />,
     label: "Categories",
   },
-  {
-    to: "/analytics",
-    icon: <PieChartIcon className="h-4 w-4" />,
-    label: "Analytics",
-  },
 ];
 
 export default function Sidebar({ open, collapsed = false, onClose }) {

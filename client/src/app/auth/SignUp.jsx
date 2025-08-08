@@ -1,3 +1,4 @@
+// src/app/auth/SignUp.jsx
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,11 +26,17 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
-const schema = z.object({
-  username: z.string().min(2, "Min 2 characters"),
-  email: z.string().email("Enter a valid e-mail"),
-  password: z.string().min(6, "Minimum 6 characters"),
-});
+const schema = z
+  .object({
+    fullName: z.string().min(2, "Min 2 characters"),
+    email: z.string().email("Enter a valid e-mail"),
+    password: z.string().min(6, "Minimum 6 characters"),
+    confirmPassword: z.string().min(6, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -46,6 +53,7 @@ export default function SignUp() {
   const onSubmit = async (values) => {
     setError("");
     try {
+      // Send registration request to backend with fullName
       await registerMutation.mutateAsync(values);
       navigate("/verify-otp", { state: { email: values.email } });
     } catch (e) {
@@ -72,17 +80,17 @@ export default function SignUp() {
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Username */}
+            {/* fullName */}
             <div className="relative">
               <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Username"
+                placeholder="Full Name"
                 className="pl-9"
-                {...register("username")}
+                {...register("fullName")}
               />
-              {errors.username && (
+              {errors.fullName && (
                 <p className="text-xs text-red-500 mt-1">
-                  {errors.username.message}
+                  {errors.fullName.message}
                 </p>
               )}
             </div>
@@ -117,7 +125,7 @@ export default function SignUp() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowPwd((p) => !p)}
-                className="absolute right-1 top-1.5"
+                className="absolute right-1 top-0"
                 tabIndex={-1}
               >
                 {showPwd ? (
@@ -129,6 +137,36 @@ export default function SignUp() {
               {errors.password && (
                 <p className="text-xs text-red-500 mt-1">
                   {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div className="relative">
+              <LockIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Confirm Password"
+                type={showPwd ? "text" : "password"}
+                className="pl-9 pr-10"
+                {...register("confirmPassword")}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowPwd((p) => !p)}
+                className="absolute right-1 top-0"
+                tabIndex={-1}
+              >
+                {showPwd ? (
+                  <EyeOffIcon className="h-4 w-4" />
+                ) : (
+                  <EyeIcon className="h-4 w-4" />
+                )}
+              </Button>
+              {errors.confirmPassword && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.confirmPassword.message}
                 </p>
               )}
             </div>

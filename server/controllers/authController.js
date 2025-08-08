@@ -14,16 +14,18 @@ const fail = (res, status, message) =>
 // Register a new user
 export const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { fullName, email, password } = req.body; // ✅ Changed from 'username' to 'fullName'
 
     // 1. Prevent duplicates
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { fullName }], // ✅ Updated this line too
+    });
     if (existingUser) {
       return fail(res, 409, "User already exists");
     }
 
     // 2. Create user (but DON'T issue JWT yet)
-    const user = new User({ username, email, password });
+    const user = new User({ fullName, email, password }); // ✅ Use fullName
     await user.save();
 
     // 3. Create & send OTP
@@ -68,7 +70,7 @@ export const loginUser = async (req, res) => {
       token,
       user: {
         id: user._id,
-        username: user.username,
+        fullName: user.fullName,
         email: user.email,
       },
     });
@@ -150,7 +152,7 @@ export const verifyOTP = async (req, res) => {
       token,
       user: {
         id: user._id,
-        username: user.username,
+        fullName: user.fullName,
         email: user.email,
       },
     });

@@ -4,7 +4,8 @@ import { createBrowserRouter } from "react-router-dom";
 import AuthGuard from "@/router/AuthGuard";
 import Login from "@/app/auth/Login";
 import SignUp from "@/app/auth/SignUp";
-
+import ForgotResetPassword from "./app/auth/ForgotResetPassword";
+import VerifyOtp from "./app/auth/VerifyOtp";
 // ------------
 
 import DashboardLayout from "@/app/layout/DashboardLayout";
@@ -12,13 +13,13 @@ import DashboardHome from "@/app/dashboard/DashboardHome";
 import Transactions from "@/app/dashboard/Transactions";
 import Categories from "@/app/dashboard/Categories";
 import Analytics from "@/app/dashboard/Analytics";
-import VerifyOtp from "./app/auth/VerifyOtp";
 
 /* ---------- ROUTE OBJECT ARRAY ---------- */
 export const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <SignUp /> },
   { path: "/verify-otp", element: <VerifyOtp /> },
+  { path: "/forgot-password", element: <ForgotResetPassword /> },
 
   {
     element: <AuthGuard />, // protects everything below

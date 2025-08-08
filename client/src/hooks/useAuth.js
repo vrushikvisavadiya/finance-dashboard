@@ -22,3 +22,17 @@ export const useLogin = () =>
   useMutation({
     mutationFn: (body) => api.post("/auth/login", body).then((r) => r.data),
   });
+
+// Mutation hook to send forgot-password OTP
+export const useForgotPassword = () =>
+  useMutation({
+    mutationFn: (data) =>
+      api.post("/auth/forgot-password", data).then((res) => res.data),
+  });
+
+// Mutation hook to reset password
+export const useResetPassword = () =>
+  useMutation({
+    mutationFn: (data) =>
+      api.post("/auth/reset-password", data).then((res) => res.data),
+  });

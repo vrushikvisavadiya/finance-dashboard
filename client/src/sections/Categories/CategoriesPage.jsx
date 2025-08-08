@@ -1,3 +1,4 @@
+// CategoriesPage.jsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -5,6 +6,7 @@ import { PlusIcon, AlertTriangleIcon } from "lucide-react";
 import { useCategories, useDeleteCategory } from "@/hooks/useCategories";
 import CategoryTable from "./CategoryTable";
 import CategoryDialog from "./CategoryDialog";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 
 export default function CategoriesPage() {
   const categoriesQuery = useCategories();
@@ -12,17 +14,26 @@ export default function CategoriesPage() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
 
   const handleEdit = (category) => {
-    if (category.isDefault) return; // prevent editing defaults
+    if (category.isDefault) return;
     setEditCategory(category);
     setEditOpen(true);
   };
 
   const handleDelete = (category) => {
-    if (category.isDefault) return; // prevent deleting defaults
-    if (confirm(`Delete "${category.name}" category?`)) {
-      deleteMutation.mutate(category._id);
+    if (category.isDefault) return;
+    setCategoryToDelete(category);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (categoryToDelete) {
+      await deleteMutation.mutateAsync(categoryToDelete._id);
+      setDeleteOpen(false);
+      setCategoryToDelete(null);
     }
   };
 
@@ -72,9 +83,22 @@ export default function CategoriesPage() {
         <CategoryDialog
           initial={editCategory}
           open={editOpen}
-          onOpenChange={setEditOpen}
+          onOpenChange={(open) => {
+            setEditOpen(open);
+            if (!open) setEditCategory(null);
+          }}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={confirmDelete}
+        title={`Delete "${categoryToDelete?.name}" Category`}
+        description={`Are you sure you want to delete the "${categoryToDelete?.name}" category? This action cannot be undone and may affect existing transactions.`}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }
