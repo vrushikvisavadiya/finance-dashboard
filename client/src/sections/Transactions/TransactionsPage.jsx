@@ -172,7 +172,7 @@ export default function TransactionsPage() {
                     updateFilter("type", value === "all" ? "" : value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="All types" />
                   </SelectTrigger>
                   <SelectContent>
@@ -193,7 +193,7 @@ export default function TransactionsPage() {
                     updateFilter("category", value === "all" ? "" : value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>

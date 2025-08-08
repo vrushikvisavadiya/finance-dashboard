@@ -12,12 +12,12 @@ import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import ProfileModal from "@/components/Modal/ProfileModal";
+// import ProfileModal from "@/components/Modal/ProfileModal";
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  // const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   // Light/Dark toggle
@@ -106,7 +106,8 @@ export default function DashboardLayout() {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => setProfileOpen(true)}
+              // onClick={() => setProfileOpen(true)}
+              onClick={() => navigate("/profile")}
             >
               <UserIcon className="h-4 w-4 text-foreground" />
             </Button>
@@ -146,7 +147,7 @@ export default function DashboardLayout() {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => setProfileOpen(true)}
+              onClick={() => navigate("/profile")}
             >
               <UserIcon className="h-4 w-4 text-foreground" />
             </Button>
@@ -162,9 +163,6 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
       </div>
-
-      {/* Profile Modal */}
-      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 }

@@ -5,6 +5,6 @@ import { getMe, changePassword } from "../controllers/userController.js";
 const router = Router();
 
 router.get("/me", auth, getMe); // GET  /api/users/me
-router.patch("/change-password", auth, changePassword); // PATCH /api/users/change-password
+router.put("/change-password", auth, changePassword); // PATCH /api/users/change-password
 
 export default router;

@@ -6,22 +6,56 @@ import {
   LogOutIcon,
   XIcon,
   WalletIcon,
+  TargetIcon,
+  ArrowRightLeftIcon,
+  GridIcon,
+  LayoutDashboard,
+  UserIcon,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+// const links = [
+//   { to: "/", icon: <HomeIcon className="h-4 w-4" />, label: "Overview" },
+//   {
+//     to: "/transactions",
+//     icon: <ListIcon className="h-4 w-4" />,
+//     label: "Transactions",
+//   },
+//   {
+//     to: "/budgets",
+//     icon: <TargetIcon className="h-4 w-4" />,
+//     label: "Bugets",
+//   },
+//   {
+//     to: "/categories",
+//     icon: <FolderIcon className="h-4 w-4" />,
+//     label: "Categories",
+//   },
+// ];
+
 const links = [
-  { to: "/", icon: <HomeIcon className="h-4 w-4" />, label: "Overview" },
+  { to: "/", icon: <LayoutDashboard className="h-4 w-4" />, label: "Overview" },
   {
     to: "/transactions",
-    icon: <ListIcon className="h-4 w-4" />,
+    icon: <ArrowRightLeftIcon className="h-4 w-4" />,
     label: "Transactions",
   },
   {
+    to: "/budgets",
+    icon: <PieChartIcon className="h-4 w-4" />,
+    label: "Budgets",
+  },
+  {
     to: "/categories",
-    icon: <FolderIcon className="h-4 w-4" />,
+    icon: <GridIcon className="h-4 w-4" />,
     label: "Categories",
+  },
+  {
+    to: "/profile",
+    icon: <UserIcon className="h-4 w-4" />,
+    label: "Profile",
   },
 ];
 

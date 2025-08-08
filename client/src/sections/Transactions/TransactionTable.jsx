@@ -39,7 +39,6 @@ export default function TransactionTable({
     <QueryLoader query={query}>
       {(data) => {
         const { list: txns, pagination } = data;
-        console.log("pagination: ", pagination);
 
         return (
           <Card>
